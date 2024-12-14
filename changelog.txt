@@ -1,0 +1,5 @@
+2024-11-19: initial build of migrate-instances.py
+
+2024-12-14: 
+- initial build of update-server.py
+- migrate-instances: Added support for copying over options.txt. Added error handling for if source folder to migrate does not exist.
