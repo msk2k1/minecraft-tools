@@ -4,7 +4,13 @@ Python is required to run these scripts. Python versions prior to 3.12.5 are unt
 
 ---
 # migrate-instances
-Usually after I install a new Minecraft update, I have to manually copy over my worlds, mods, and texture packs. This script automates that process. The script automatically detects all Minecraft instances, and prompts the user to select the old and new ones. It's assumed the new instance has already been created and launched at least once. `migrate-instances-config.json` should be stored in the same folder as the script, and contains settings intended to be user-defined:
+Usually after I install a new Minecraft update, I have to manually copy over my worlds, mods, and texture packs. This script automates that process. 
+
+The script automatically detects all Minecraft instances, and prompts the user to select the old and new ones. 
+
+**It's assumed the new instance has already been created and launched at least once.** 
+
+`migrate-instances-config.json` should be stored in the same folder as the script, and contains settings intended to be user-defined:
 - Folder containing all Minecraft instances
 - subfolders in instance's .minecraft whose contents should be migrated
 - enable/disable copying options.txt from the source instance.
@@ -18,6 +24,8 @@ Note that installing a mod loader and updating mods must still be done manually.
 This is intended to update self-hosted servers (which use `server.jar` to run) for new Minecraft versions, while preserving the world file, player data, and server properties. It follows steps based on [this tutorial](https://wiki.sportskeeda.com/minecraft/how-to-update-server-minecraft). 
 
 **Usage:** The script requires paths to the server folder and updated server.jar passed at runtime.
+
+**This scripts edits the server contents without making a backup copy. Back up the server folder yourself before running this script.** If execution fails partway through, you will need to manually restore the original folder structure.
 
 The actions this script performs are:
 1. Files to keep after the update are stored in `<server root>/tmp`

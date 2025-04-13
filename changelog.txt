@@ -9,3 +9,10 @@
     - showing public IP is now a parameter (which is disabled by default)
     - option to keep "dump" folder (default behavior is now to delete it)
 - general failure exit code is now 1 (was -1)
+- new return codes:
+    - 1 => general failure
+    - 2 => error parsing commandline arguments
+- junk files now moved to folder starting with "old_" (was "dump_")
+- general refactor
+    - server path is no longer converted to literal path before use. Script now uses whatever is passed at runtime.
+    - removed functions
