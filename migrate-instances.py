@@ -19,11 +19,11 @@ def pick_instance(choices: list, prompt_is_for: str):
     if os.path.exists(os.path.join(selection, "minecraft")) and os.path.exists(os.path.join(selection, ".minecraft")):
         raise Exception("both a 'minecraft' and '.minecraft' folder exist in this instance. Delete one and try again.")
     
-    # confirm existence of 'minecraft' or '.minecraft' folder. Check for '.minecraft' first.
+    # confirm existence of 'minecraft' or '.minecraft' folder. checks for '.minecraft' first.
     if os.path.exists(os.path.join(selection, ".minecraft")):
         return os.path.join(selection, ".minecraft")
     elif os.path.exists(os.path.join(selection, "minecraft")):
-        return os.path.exists(os.path.join(selection, "minecraft"))
+        return os.path.join(selection, "minecraft")
     else:
         raise Exception("Folder not detected as a minecraft instance. (No 'minecraft' or '.minecraft' subfolder)")
 
