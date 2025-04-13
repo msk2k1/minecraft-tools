@@ -21,3 +21,7 @@ update-server
 migrate-instances
 - removed json settings file (replaced with constants)
 - slightly reworded some messages
+- refactored and more robust instance validation:
+    - new function includes both selection prompt and integrity checks
+    - now supports instances with "minecraft" (not ".minecraft") folder
+        - confirms both don't exist

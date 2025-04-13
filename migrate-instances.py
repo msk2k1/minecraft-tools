@@ -1,33 +1,44 @@
 import os, shutil, sys
 
-# function: prompt for selection given a list of choices.
-def getSelection(choices: list, prompt_is_for: str):
-    while True:
-        index = input(f"Enter numerical index of {prompt_is_for} instance: ")
-        try: index = int(index); break
-        except: print("Invalid selection.")
-    return choices[index]
-
 # constants
 INSTANCES_FOLDER = os.path.realpath("/media/matt/games/PrismLauncher/instances/")
 MIGRATE = ["resourcepacks", "saves", "screenshots", "mods", "shaderpacks"]
 COPY_OPTIONS = True
 
+# pick a Minecraft instance and verify its integrity.
+# returns minecraft/.minecraft folder path for the chosen instance.
+def pick_instance(choices: list, prompt_is_for: str):
+
+    # selection prompt
+    while True:
+        index = input(f"Enter numerical index of {prompt_is_for} instance: ")
+        try: selection = os.path.join(INSTANCES_FOLDER, choices[int(index)]); break
+        except: print("Invalid selection.")
+
+    # confirm there is not both a "minecraft" and ".minecraft" folder for the instance.
+    if os.path.exists(os.path.join(selection, "minecraft")) and os.path.exists(os.path.join(selection, ".minecraft")):
+        raise Exception("both a 'minecraft' and '.minecraft' folder exist in this instance. Delete one and try again.")
+    
+    # confirm existence of 'minecraft' or '.minecraft' folder. Check for '.minecraft' first.
+    if os.path.exists(os.path.join(selection, ".minecraft")):
+        return os.path.join(selection, ".minecraft")
+    elif os.path.exists(os.path.join(selection, "minecraft")):
+        return os.path.exists(os.path.join(selection, "minecraft"))
+    else:
+        raise Exception("Folder not detected as a minecraft instance. (No 'minecraft' or '.minecraft' subfolder)")
+
 ### main execution starts here ###
 
-# detect instances (top-level folders in root); prompt for choice
+# get migration source and destination instances
 instances = next(os.walk(INSTANCES_FOLDER))[1]
-for index, name in enumerate(instances): print(f'{index:02d}', "|", name)
-src = os.path.realpath(os.path.join(INSTANCES_FOLDER, getSelection(instances, "source"), ".minecraft"))
-dst = os.path.realpath(os.path.join(INSTANCES_FOLDER, getSelection(instances, "destination"), ".minecraft"))
-
-# selection integrity checks
+for index, name in enumerate(instances): print(f"{index:02d} | {name}") # list available instances
 try:
-    if (not os.path.exists(src)) or (not os.path.exists(dst)): raise Exception("At least one of the folders given detected as not a minecraft instance: no .minecraft folder")
+    src = pick_instance(instances, "source")
+    dst = pick_instance(instances, "destination")
     if src == dst: raise Exception("Source and destination instances are the same.")
-except Exception as e: print(e); sys.exit(1)
+except Exception as e: print(f"Error selecting instances: {e}"); sys.exit(1)
 
-# migrate folders from src to dst
+# migrate each subfolder in MIGRATE list
 for folder in MIGRATE:
     print(f"Migrating folder: {folder}...")
     if not os.path.exists(os.path.join(src,folder)): print("### Folder does not exist in source instance:", folder) # verify folder exists in source
