@@ -1,6 +1,6 @@
 These are small scripts I've written to manage local files for Minecraft: Java Edition.
 
-Python is required to run these scripts. Python versions prior to 3.12.5 are untested. No external libraries are needed.
+Python is required to run these scripts. Python versions prior to 3.12.3 are untested. No external libraries are needed for either program.
 
 ---
 # migrate-instances
