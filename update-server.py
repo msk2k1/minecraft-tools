@@ -1,7 +1,7 @@
 import argparse, shutil, os, time, subprocess, sys
 
 # given server folder and path to new server.jar
-def getArgs():
+def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('server', help="Path to the current server folder.")
     parser.add_argument('newJar', help="Path to the updated server.jar.")
@@ -14,43 +14,45 @@ def getArgs():
         raise Exception("Server file must be a .jar file.")
     else: return output
 
-# move "items" in "root" into a subfolder "subfolder".
-def stashFiles(root: str, items: str, subfolder: str):
-    print("Preparing", subfolder, "stash...")
+# move "items" in ARGS.server into a subfolder "subfolder".
+def stash_files(items: str, subfolder_name: str):
+    root = ARGS.server
     for i in items:
         try:
             shutil.move(
                 os.path.join(root, i), 
-                os.path.join(root, subfolder, i)
+                os.path.join(root, subfolder_name, i)
             )
         except Exception as e:
             raise Exception(f"Error attempting to move {i}: {e}")
     return
 
-# copy over give server.jar, run it for the first time, and accept the EULA. Rerturns the path to the copied jar to be used for the server.
+# copy over give server.jar, run it for the first time, and accept the EULA. 
+# If successful, returns the path to the copied jar to be used for the server.
 # jar: the jar file given as parameter to script.
-def initServer(jar: str, root: str):
+def init_server(jar_to_copy: str):
+    root = ARGS.server
     try:
-        print("copying over", jar, "...")
+        print("copying over", jar_to_copy, "...")
         activeJar = os.path.join(root, "server.jar")
-        shutil.copy(jar, activeJar)
+        shutil.copy(jar_to_copy, activeJar)
     except Exception as e: raise(e)
 
     try:
         print("initializing server.jar...")
         subprocess.run(
             ["java", "-jar", activeJar],    # run server jar using "java" command. 
-            cwd=ARGS["server"],             # changes working directory during execution so files are placed in the server folder.
+            cwd=root,                       # changes working directory during execution so files are placed in the server folder.
             stdout=subprocess.DEVNULL,      # supress regular terminal output...
             stderr=subprocess.STDOUT)       # ...but not errors
-        
         os.remove(os.path.join(root, "server.properties")) # remove existing server.properties file to ensure the one from tmp is used
     except Exception as e: raise(e)
 
     return activeJar
 
 # accept the EULA by editing the eula.txt.
-def acceptEULA(root: str):
+def accept_eula():
+    root = ARGS.server
     try:
         print("agreeing to EULA...")
         eulaPath = os.path.join(root, "eula.txt")
@@ -61,10 +63,11 @@ def acceptEULA(root: str):
     return
 
 # copy the files out of tmp folder and attempt to delete it.
-def restoreTmp(root: str):
-    folder = os.path.join(ARGS["server"], "tmp")
+def restore_tmp():
+    root = ARGS.server
+    folder = os.path.join(root, "tmp")
     try:
-        print("Restoring existing serverreturn  data...")
+        print("Restoring existing server data...")
         for i in os.listdir(folder):
             shutil.move(
                 os.path.join(folder, i),
@@ -73,40 +76,41 @@ def restoreTmp(root: str):
     except Exception as e: raise(e)
 
     # delete tmp folder if it is empty
-    if not os.listdir(folder): os.rmdir(os.path.join(ARGS["server"], "tmp"))
+    if not os.listdir(folder): os.rmdir(folder)
     else: print("tmp folder could not be deleted because it still contains files.")
 
     return
 
 ### main execution starts here ###
 try:
-    ARGS = getArgs()
-    # serverRoot = ARGS.server
-    print(ARGS.server)
-    quit()
+    ARGS = get_args()
 
-    # tmp folder: files to transfer after upgrade
-    tmpFolder = os.path.join(serverRoot, "tmp")
-    tmpItems = ["world", "banned-ips.json", "banned-players.json", "ops.json", "server.properties", "usercache.json", "whitelist.json"]
-    stashFiles(serverRoot, tmpItems, tmpFolder)
+    # create tmp folder (files to restore after upgrade)
+    print("Stashing files to keep...")
+    stash_files(
+        items=["world", "banned-ips.json", "banned-players.json", "ops.json", "server.properties", "usercache.json", "whitelist.json"],
+        subfolder_name="tmp"
+    )
 
-    # dump folder: files which can be discarded after upgrade. For safety reasons, the script doesn't delete them itself.
-    dumpName = "dump_" + time.strftime("%Y%m%d-%H%M%S")
-    dumpFolder = os.path.join(serverRoot, dumpName)
-    dumpItems = ["logs", "eula.txt", "server.jar", "libraries", "versions"]
-    stashFiles(serverRoot, dumpItems, dumpFolder)
+    # Create dump folder (files which can be discarded after upgrade)
+    print("Stashing files to remove...")
+    dump_folder_name = "dump_" + time.strftime("%Y%m%d-%H%M%S")
+    stash_files(
+        items=["logs", "eula.txt", "server.jar", "libraries", "versions"],
+        subfolder_name=dump_folder_name
+    )
 
-    initServer(ARGS["newJar"], serverRoot)
-    acceptEULA(serverRoot)
-    restoreTmp(serverRoot)
+    init_server(ARGS.newJar)
+    accept_eula()
+    restore_tmp()
 
     # delete dump folder
-    print("Server upgrade complete.")
-    print(f"To launch, run: \ncd {serverRoot}; java -jar ./server.jar --nogui\n")
+    print("\nServer upgrade complete.")
+    print(f"\nTo launch, run these commands in order:\ncd {ARGS.server}\njava -jar ./server.jar --nogui")
     if ARGS.keep_temp_files:
-        print(f"Files in {dumpName} can be safely deleted.")
+        print(f"Files in {dump_folder_name} can be safely deleted.")
     else:
-        try: os.rmdir(dumpFolder)
+        try: shutil.rmtree(os.path.join(ARGS.server, dump_folder_name))
         except Exception as e: print(f"dump folder could not be deleted: {e}")
 
     # print IP address to give to friends
@@ -114,9 +118,9 @@ try:
         try:
             import urllib.request
             myIP = urllib.request.urlopen("https://checkip.amazonaws.com").read().decode('utf8').strip() + ":25565"
-            print(f"Server address: {myIP}")
+            print(f"\nServer address: {myIP}")
         except Exception as e:
-            print(f"Public IP could not be obtained: {e}")
+            print(f"\nPublic IP could not be obtained: {e}")
 except Exception as e: 
     print(e)
     sys.exit(1)
