@@ -3,3 +3,9 @@
 2024-12-14: 
 - initial build of update-server.py
 - migrate-instances: Added support for copying over options.txt. Added error handling for if source folder to migrate does not exist.
+
+2025-04-XX:
+- added optional commandline parameters:
+    - showing public IP is now a parameter (which is disabled by default)
+    - option to keep "dump" folder (default behavior is now to delete it)
+- general failure exit code is now 1 (was -1)
