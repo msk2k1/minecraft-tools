@@ -1,0 +1,16 @@
+{
+    "migration":{
+        "do":true,
+        "source_instance":      "S:\\PrismLauncher\\instances\\1.21.5\\minecraft",
+        "destination_instance": "S:\\PrismLauncher\\instances\\1.21.6\\minecraft",
+        "things_to_migrate":["resourcepacks", "saves", "screenshots", "mods", "shaderpacks"],
+        "copy_game_options":true
+    },
+    "server_update":{
+        "do":true,
+        "server_folder":"F:\\games\\save-files\\minecraft\\servers\\mike-server\\",
+        "new_jar":      "F:\\games\\save-files\\minecraft\\servers\\_jars\\1-21-6.jar",
+        "show_public_ip":true,
+        "keep_junk_files":false
+    }
+}

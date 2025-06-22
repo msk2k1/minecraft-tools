@@ -2,7 +2,9 @@
 
 2024-12-14: 
 - initial build of update-server.py
-- migrate-instances: Added support for copying over options.txt. Added error handling for if source folder to migrate does not exist.
+- migrate-instances: 
+    - Added support for copying over options.txt. 
+    - Added error handling for if source folder to migrate does not exist.
 
 2025-04-13: 
 update-server
@@ -25,3 +27,15 @@ migrate-instances
     - new function includes both selection prompt and integrity checks
     - now supports instances with "minecraft" (not ".minecraft") folder
         - confirms both don't exist
+
+2025-06-xx:
+- Combined migrate-instances and update-server into a single script.
+- Arguments for single script are passed from settings json file; see readme for details.
+- introduced colored text output
+- for instance migration: 
+    - general refactoring
+    - now expects source and destination paths to be to the minecraft or .minecraft folder, instead of trying to deduce which it has from the root
+    - no longer shows message for each individual file copied
+- for server update:
+    - general refactoring
+    - prints commands to run to launch server
